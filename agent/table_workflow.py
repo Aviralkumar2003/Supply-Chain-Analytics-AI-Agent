@@ -77,10 +77,9 @@ class TableGraph:
     def route(self, state: State):
         last = state["messages"][-1]
 
-        if last.tool_calls:
+        if isinstance(last, AIMessage) and last.tool_calls:
             if any(tc["name"] == "SubmitFinalAnswer" for tc in last.tool_calls):
                 return "tools_final"
-
             return "tools"
 
         return END

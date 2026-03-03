@@ -1,5 +1,5 @@
 import uuid
-from langchain_core.messages import AIMessage
+from langchain_core.messages import AIMessage, ToolMessage
 from agent.agent_state import State
 
 class TableFirstToolStep:
@@ -27,22 +27,44 @@ class TableLLMStep:
 
 class TableCaptureSQLStep:
     def __call__(self, state: State):
-        last = state["messages"][-1]
-        if last.type == "tool" and last.name == "sql_db_query":
-            previous_ai = state["messages"][-2]
-            if previous_ai.tool_calls:
-                for call in previous_ai.tool_calls:
+        messages = state["messages"]
+
+        # We only care if last message is a sql_db_query tool result
+        last = messages[-1]
+
+        if not isinstance(last, ToolMessage):
+            return {}
+
+        if last.name != "sql_db_query":
+            return {}
+
+        # Walk backwards to find the AIMessage that triggered this tool call
+        for msg in reversed(messages[:-1]):
+            if isinstance(msg, AIMessage) and msg.tool_calls:
+                for call in msg.tool_calls:
                     if call["name"] == "sql_db_query":
                         return {"final_sql": call["args"]["query"]}
+
         return {}
 
 class TableCaptureFinalStep:
     def __call__(self, state: State):
-        last = state["messages"][-1]
-        if last.type == "tool" and last.name == "SubmitFinalAnswer":
-            previous_ai = state["messages"][-2]
-            if previous_ai.tool_calls:
-                for call in previous_ai.tool_calls:
+        messages = state["messages"]
+        last = messages[-1]
+
+        if not isinstance(last, ToolMessage):
+            return {}
+
+        if last.name != "SubmitFinalAnswer":
+            return {}
+
+        # Walk backwards to find AIMessage that triggered final answer tool
+        for msg in reversed(messages[:-1]):
+            if isinstance(msg, AIMessage) and msg.tool_calls:
+                for call in msg.tool_calls:
                     if call["name"] == "SubmitFinalAnswer":
-                        return {"final_answer": call["args"]["final_answer"]}
+                        return {
+                            "final_answer": call["args"]["final_answer"]
+                        }
+
         return {}
