@@ -32,7 +32,7 @@ Replace:
         gpt-4.1 with any supported OpenAI model if required
 
 # Step-3: Creata a Virtual Environment
-    python -m venv venv
+    python3.11.9 -m venv venv
 
 # Step-4: Activate the Virtual Environment
     ./venv/Scripts/Activate.ps1
