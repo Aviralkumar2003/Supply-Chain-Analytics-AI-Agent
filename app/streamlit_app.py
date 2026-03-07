@@ -7,28 +7,18 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from services.analysis_service import AnalysisService
 
 
-# ---------------------------------------------------
-# Page Config
-# ---------------------------------------------------
-
 st.set_page_config(
     page_title="Supply Chain Analytics AI Agent",
     layout="wide"
 )
 
 
-# ---------------------------------------------------
-# Title
-# ---------------------------------------------------
-
+#Title and caption
 st.title("Supply Chain Analytics AI Agent")
 st.caption("AI-powered analysis of supply chain data using natural language queries")
 
 
-# ---------------------------------------------------
-# Session State
-# ---------------------------------------------------
-
+#Session State Initialization
 if "service" not in st.session_state:
     st.session_state.service = AnalysisService()
 
@@ -42,10 +32,7 @@ if "final_sql" not in st.session_state:
     st.session_state.final_sql = None
 
 
-# ---------------------------------------------------
-# Helper: Step Labels
-# ---------------------------------------------------
-
+# Helper function to convert node and output into a readable step description
 def readable_step(node, output):
 
     if node == "first_tool_call":
@@ -78,10 +65,7 @@ def readable_step(node, output):
     return f"Processing {node}"
 
 
-# ---------------------------------------------------
-# Question Input
-# ---------------------------------------------------
-
+#Question Input
 st.subheader("Ask a Question")
 
 question = st.text_input(
@@ -92,10 +76,7 @@ question = st.text_input(
 analyze = st.button("Analyze", type="primary")
 
 
-# ---------------------------------------------------
-# Execute Analysis
-# ---------------------------------------------------
-
+# Run analysis when button is clicked and question is provided
 if analyze and question:
 
     status = st.status("Running analysis...", expanded=True)
@@ -118,13 +99,10 @@ if analyze and question:
 
             status.write(readable_step(node, output))
 
-        status.update(label="Analysis complete", state="complete")
+        status.update(label="Analysis complete", state="complete", expanded=False)
 
 
-# ---------------------------------------------------
-# Results
-# ---------------------------------------------------
-
+#Results Display
 if st.session_state.final_answer:
 
     st.divider()
@@ -142,10 +120,7 @@ if st.session_state.final_answer:
             st.code(st.session_state.final_sql, language="sql")
 
 
-# ---------------------------------------------------
-# Agent Trace
-# ---------------------------------------------------
-
+#Agent Execution Trace
 if st.session_state.steps:
 
     st.divider()

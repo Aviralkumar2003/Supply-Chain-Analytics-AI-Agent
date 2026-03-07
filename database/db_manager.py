@@ -1,4 +1,3 @@
-
 import pandas as pd
 from database.db_connection import DuckDBConnection
 

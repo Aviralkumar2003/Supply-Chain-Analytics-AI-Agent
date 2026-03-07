@@ -1,13 +1,10 @@
-# run_gross_margin_query.py
-
 from database.db_manager import DatabaseManager
 import pandas as pd
 
 def main():
-    # Initialize the database manager
+    
     db_manager = DatabaseManager()
 
-    # Define the query
     query = """
     SELECT DATE_TRUNC('month', date) AS month, 
        SUM(CASE WHEN service_type IN ('expedited', 'overnight') THEN shipping_cost ELSE 0 END) AS expedited_overnight_spend,
@@ -19,10 +16,8 @@ ORDER BY month;
     """
 
     try:
-        # Execute the query
         result_df = db_manager.execute_query(query)
 
-        # Display the result
         pd.set_option("display.max_columns", None)
         print(result_df)
 
@@ -30,7 +25,6 @@ ORDER BY month;
         print(f"Error executing query: {e}")
 
     finally:
-        # Close the database connection
         db_manager.close()
 
 if __name__ == "__main__":

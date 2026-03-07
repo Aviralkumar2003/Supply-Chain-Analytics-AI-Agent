@@ -1,5 +1,3 @@
-# table_workflow.py
-
 import logging
 from typing import Dict
 
@@ -40,8 +38,6 @@ llm_with_tools = LLM_MODEL.bind_tools([
 
 
 query_llm_chain = query_gen_prompt | llm_with_tools
-
-print(query_llm_chain)
 
 
 #Creating ToolNode
@@ -88,21 +84,19 @@ class TableGraph:
 
         workflow = StateGraph(State)
 
+        #Adding nodes/providing tools to the agent
         workflow.add_node("first_tool_call", self.first_tool_call)
         workflow.add_node("llm", self.llm_node)
-
         workflow.add_node("tools", tool_node)
         workflow.add_node("tools_final", tool_node)
-
         workflow.add_node("capture_sql", self.capture_sql_query)
         workflow.add_node("capture_final", self.capture_final_answer)
 
+        #Adding edges and defining the flow of the agent
         workflow.add_edge(START, "first_tool_call")
         workflow.add_edge("first_tool_call", "tools")
-
         workflow.add_edge("tools", "capture_sql")
         workflow.add_edge("capture_sql", "llm")
-
         workflow.add_conditional_edges(
             "llm",
             self.route,
@@ -112,7 +106,6 @@ class TableGraph:
                 END: END,
             }
         )
-
         workflow.add_edge("tools_final", "capture_final")
         workflow.add_edge("capture_final", END)
 
